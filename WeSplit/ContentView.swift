@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+extension Double {
+    func getRoundedString() -> String {
+        String(format: "%.2f", ceil(self * 100)/100)
+    }
+}
+
 struct ContentView: View {
     @State private var checkAmount = 0.0
     @State private var numberOfPeople = 2
@@ -19,12 +25,19 @@ struct ContentView: View {
     
     let currencyCode = Locale.current.currency?.identifier ?? "USD"
     
+    var tipValue: Double {
+        let tipValue = checkAmount / 100 * Double(tipPercentage)
+        return tipValue
+    }
+    
+    var checkAmountWithTip: Double {
+        let grandTotal = checkAmount + tipValue
+        return grandTotal
+    }
+    
     var totalPerPerson: Double {
         let peopleCount = Double(numberOfPeople + 2)
-        let tipSelection = Double(tipPercentage)
-        let tipValue = checkAmount / 100 * tipSelection
-        let grandTotal = checkAmount + tipValue
-        let amountPerPerson = grandTotal / peopleCount
+        let amountPerPerson = checkAmountWithTip / peopleCount
         
         return amountPerPerson
     }
@@ -59,6 +72,34 @@ struct ContentView: View {
                     Text(totalPerPerson, format: .currency(code: currencyCode))
                 } header: {
                     Text("Total per person")
+                }
+                
+                Section {
+                    HStack {
+                        Text("Original Amount")
+                            .fontWeight(.bold)
+                        Spacer()
+                        Text("\(checkAmount.getRoundedString())")
+                    }
+                    
+                    HStack {
+                        Text("Tip Amount")
+                            .fontWeight(.bold)
+                        Spacer()
+                        Text("\(tipValue.getRoundedString())")
+                    }
+                    
+                    HStack {
+                        Text("Grand Total")
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Text("\(checkAmountWithTip.getRoundedString())")
+                            .tint(.blue)
+                    }
+                } header: {
+                    Text("Check Breakdown")
                 }
             }
             .navigationTitle("WeSplit")
